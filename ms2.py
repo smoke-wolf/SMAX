@@ -1,7 +1,6 @@
 import os
 import random
 import string
-
 import requests
 import json
 import tkinter as tk
@@ -51,15 +50,16 @@ def get_key_and_verbose_from_args():
 
     return key, verbose, light
 
-def upload_string(text, time):
+def upload_string(text, time, rec_id):
     url = 'https://doesnte235246.000webhostapp.com/transaction.php'
     params = {
         'action': 'write',
         'text': text,
-        'time': time
+        'time': time,
+        'rec_id': rec_id  # Adding rec_id parameter
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, verify=False)
 
     if response.status_code == 200:
         code = response.text
@@ -68,17 +68,21 @@ def upload_string(text, time):
         return None
 
 
-def read_string(code):
+def read_string(code, rec_id, password):
     url = 'https://doesnte235246.000webhostapp.com/transaction.php'
     params = {
         'action': 'read',
-        'code': code
+        'code': code,
+        'rec_id': rec_id,
+        'password': password
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, verify=False)
 
     if response.status_code == 200:
         return response.text
+    elif response.status_code == 403:
+        return 'Invalid rec_id or password.'
     elif response.status_code == 404:
         return 'Transaction not found or expired.'
     else:
@@ -158,7 +162,7 @@ class MessageApp(tk.Tk):
         self.auth_button = tk.Button(self.auth_frame, text="Authenticate", command=self.authenticate_user)
         self.auth_button.pack()
 
-        md = requests.get('https://google.com')
+        md = requests.get('https://google.com', verify=False)
         if md.status_code == 200:
             md = True
 
@@ -183,7 +187,7 @@ Network Connection is {md}
         if self.verbose:
             print(f"Authenticating user with ID: {user_id}")
 
-        response = requests.post(AUTH_URL, json=data)
+        response = requests.post(AUTH_URL, json=data, verify=False)
 
         if response.text == 'Authentication successful':
             if self.verbose:
@@ -278,12 +282,12 @@ Network Connection is {md}
 
         return key
 
-    def ide(self):
+    def ide(self,User_id):
         with open(f'key', 'w') as r:
             self.key = 'key'
-            key34 = self.genkey(rules=[5])
+            key34 = self.genkey(rules=[2])
             r.write(key34)
-            keyl = upload_string(key34, (60 * 60))
+            keyl = upload_string(key34, (60 * 60),User_id)
             if self.verbose:
                 print(f"Key has been uploaded to server with id {keyl}")
             r.close()
@@ -345,11 +349,11 @@ Network Connection is {md}
 
         if self.apper:
             self.apper = False
-            id_ = self.ide()
+            id_ = self.ide(recipient_id)
             message = f'{id_}[:]{self.encrypt_with_file(self.key, message, self.key)}'
         elif self.AllwaysEncrypt_:
             self.apper = False
-            id_ = self.ide()
+            id_ = self.ide(recipient_id)
             message = f'{id_}[:]{self.encrypt_with_file(self.key, message, self.key)}'
         else:
             message = self.encrypt_with_file(self.key, message, self.key)
@@ -375,7 +379,7 @@ Network Connection is {md}
             print(f"Sending message from {user_id} to {recipient_id}")
             print(f"Message content: {message}")
 
-        response = requests.post(MESSAGE_URL, json=data)
+        response = requests.post(MESSAGE_URL, json=data, verify=False)
 
         if response.status_code == 200:
             if self.verbose:
@@ -389,7 +393,7 @@ Network Connection is {md}
             messagebox.showerror("Failed to Send Message", "Failed to send message.")
 
     def check_messages(self, user_id, password):
-        response = requests.get(f"{MESSAGE_URL}?id={user_id}&password={password}")
+        response = requests.get(f"{MESSAGE_URL}?id={user_id}&password={password}", verify=False)
 
         if self.verbose:
             print(f"Checking messages for user {user_id}")
@@ -407,13 +411,19 @@ Network Connection is {md}
                             if message['timestamp'] > self.last_message_timestamp:
                                 if sender != 'You':
                                     with open(f'key', 'w') as r:
-                                        key = read_string(key)
+                                        key = read_string(key,user_id,password)
+
                                         if key != 'Transaction not found or expired.':
-                                            self.key = 'key'
-                                            r.write(key)
-                                            if self.verbose:
-                                                print(f'written {key}')
-                                            r.close()
+                                            if key != 'Invalid rec_id or password.':
+                                                self.key = 'key'
+                                                r.write(key)
+                                                if self.verbose:
+                                                    print(f'written {key}')
+                                                r.close()
+                                            else:
+                                                print(user_id, password)
+                                                if self.verbose:
+                                                    print(f'Invalid rec_id or password.')
                                         else:
                                             if self.verbose:
                                                 print(f'Transaction not found or expired.')
