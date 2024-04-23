@@ -8,6 +8,29 @@ from tkinter import messagebox, Scrollbar, Listbox, END
 import sys
 import hashlib
 
+
+def lls():
+    args = sys.argv[1:]  # Exclude the script name itself
+    tell = None
+
+
+
+    if '-t' in args:
+        tell = True
+    return tell
+
+if lls():
+    print('''
+    The authentication process involves sending user ID and password hashed using SHA-3-512 to a server 
+    endpoint and receiving a response indicating successful or failed authentication. Upon successful authentication, 
+    the user can access the chat window where they can send and receive encrypted messages. The encryption process 
+    involves XORing the message characters with characters from a key file, ensuring secure communication. 
+
+    The application also provides options for specifying encryption keys, always encrypting messages, and passing 
+    encryption to the client. It continuously checks for new messages and updates the chat window accordingly. The GUI 
+    elements are organized using frames, labels, entry fields, buttons, listboxes, and a scrollbar. Finally, the script 
+    runs an instance of the MessageApp class as the main application loop.''')
+
 def hash_string(input_string):
     # Encode the input string to bytes
     input_bytes = input_string.encode()
