@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+.enc {
+      background-color: var(--red);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .enc:hover {
+      background-color: var(--dark-red);
+    }
+
+    @keyframes changeRed {
+      0% {
+        --red: #ff4d4d;
+        --dark-red: #cc0000;
+      }
+      50% {
+        --red: #ff6666;
+        --dark-red: #b30000;
+      }
+      100% {
+        --red: #ff9999;
+        --dark-red: #800000;
+      }
+    }
+
+    .enc {
+      animation: changeRed 5s infinite;
+    }
+        #data {
+            max-height: 300px;
+            max-width: 600px;
+            margin: auto;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .message-box {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .sender,
+.receiver {
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 5px;
+    animation: colorChange 1.5s infinite alternate;
+}
+
+.sender {
+    background: linear-gradient(135deg, rgba(0,123,255,0.8), rgba(0,123,255,1));
+}
+
+.receiver {
+    background: linear-gradient(135deg, rgba(244,67,54,0.8), rgba(244,67,54,1));
+}
+
+@keyframes colorChange {
+    0% { background-color: rgba(0, 123, 255, 0.8); }
+    100% { background-color: rgba(0, 123, 255, 1); }
+}
+
+        form {
+            width: 300px;
+            margin: 50px auto;
+            background: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+        input[type="text"],
+        textarea {
+            width: calc(100% - 12px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #555;
+            color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #007bff;
+            color: #fff;
+
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Display Data</h1>
+    <div id="data"></div>
+
+    <form id="sendForm">
+        <label for="recipient">Recipient:</label>
+        <input type="text" id="recipient" name="recipient"><br><br>
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
+        <button type="submit">Send</button>
+      <p></p>
+
+    </form>
+
+    <script>
+    function fetchData() {
+    fetch('/random-data')
+    .then(response => response.text()) // Parse response as text
+    .then(data => {
+        const dataList = document.getElementById('data');
+        const entries = data.split('\n'); // Split data by new line
+        const initialMessageCount = dataList.children.length; // Track initial message count
+        entries.forEach(entry => {
+            if (!entry.startsWith('[!]') && entry.includes('->')) {
+                const entryDiv = document.createElement('div');
+                entryDiv.classList.add('message-box');
+                if (entry.includes('You ->')) {
+                    entryDiv.classList.add('receiver');
+                } else {
+                    entryDiv.classList.add('sender');
+                }
+                entryDiv.textContent = entry.trim(); // Trim any leading/trailing whitespaces
+                dataList.appendChild(entryDiv);
+            }
+        });
+        // Scroll to the bottom if new messages are appended
+        if (dataList.children.length > initialMessageCount) {
+            dataList.scrollTop = dataList.scrollHeight;
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+
+
+    function sendData(event) {
+        event.preventDefault();
+        const form = document.getElementById('sendForm');
+        const formData = new FormData(form);
+        fetch('/send-data', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error sending data:', error);
+        });
+    }
+
+    // Fetch data every second
+    setInterval(fetchData, 1000);
+
+    // Send data when form is submitted
+    document.getElementById('sendForm').addEventListener('submit', sendData);
+
+
+
+    </script>
+</body>
+</html>
