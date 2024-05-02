@@ -146,6 +146,7 @@ class MessageApp(tk.Tk):
 
             return encrypted
 
+
     def decrypt_with_file(self,file_path, encrypted_string, key):
         if self.verbose:
             print("Starting decryption process...")
@@ -167,6 +168,7 @@ class MessageApp(tk.Tk):
                 print("Decryption successful.")
 
             return decrypted
+
 
     def create_auth_widgets(self):
         self.auth_frame = tk.Frame(self)
@@ -198,6 +200,7 @@ Network Connection is {md}
 ''')
         self.aut.pack()
 
+
     def authenticate_user(self):
         user_id = self.user_id_entry.get()
         password = self.password_entry.get()
@@ -226,6 +229,7 @@ Network Connection is {md}
                 print("Authentication failed. Please check your ID and password.")
             messagebox.showerror("Authentication Failed", "Authentication failed. Please check your ID and password.")
 
+
     def DefineNewKey(self, file_path):
         self.key = file_path  # Update the key attribute with the content of the file
 
@@ -244,15 +248,14 @@ Network Connection is {md}
         self.recipient_entry.pack()
 
         self.send_button = tk.Button(self.chat_frame, text="Send Message",
-                                     command=lambda: self.send_message(user_id, password,temp1=False))
+                                     command=lambda: self.send_message(user_id, password, temp1=False))
         self.send_button.pack()
 
         self.enc = tk.Button(self.chat_frame, text="Allways Encrypt",
                              command=lambda: self.AllwaysEncrypt())
         self.enc.pack()
 
-        # Entry widget for file path
-        self.reset_button = tk.Button(self.chat_frame, text = "Reset Chat", command=self.clear_chat)
+        self.reset_button = tk.Button(self.chat_frame, text="Reset Chat", command=self.clear_chat)
         self.reset_button.pack()
 
         self.er = tk.Button(self.chat_frame, text="Pass Encryption to Client", command=self.Apply)
@@ -261,14 +264,16 @@ Network Connection is {md}
         self.file_path_label = tk.Label(self.chat_frame, text="KeyFilePath: ")
         self.file_path_label.pack()
 
+        # Update the theme button text
+        self.theme_button = tk.Button(self.chat_frame, text="Toggle Theme", command=self.toggle_theme)
+        self.theme_button.pack()
+
         self.file_path_entry = tk.Entry(self.chat_frame)
         self.file_path_entry.pack()
 
         self.load_button = tk.Button(self.chat_frame, text="Load New Key",
                                      command=lambda: self.DefineNewKey(self.file_path_entry.get()))
         self.load_button.pack()
-
-
 
         self.message_display = Listbox(self.chat_frame, width=80, height=15)
         self.message_display.pack()
@@ -278,7 +283,69 @@ Network Connection is {md}
         self.message_display.config(yscrollcommand=self.scrollbar.set)
 
 
+
+        # Set the initial theme
+        self.set_light_theme()
+
         self.after(1000, lambda: self.check_messages(user_id, password))
+
+    def set_dark_theme(self):
+        self.chat_frame.configure(bg="#333333")
+        self.message_label.configure(bg="#333333", fg="#f4f4f4")
+        self.message_entry.configure(bg="#f4f4f4", fg="#333333")
+        self.recipient_label.configure(bg="#333333", fg="#f4f4f4")
+        self.recipient_entry.configure(bg="#f4f4f4", fg="#333333")
+        self.send_button.configure(bg="#007aff", fg="white")
+        self.enc.configure(bg="#007aff", fg="white")
+        self.reset_button.configure(bg="#007aff", fg="white")
+        self.er.configure(bg="#007aff", fg="white")
+        self.file_path_label.configure(bg="#333333", fg="#f4f4f4")
+        self.file_path_entry.configure(bg="#f4f4f4", fg="#333333")
+        self.load_button.configure(bg="#007aff", fg="white")
+        self.message_display.configure(bg="white", fg="#333333")
+        self.scrollbar.configure(bg="#333333")
+
+    def set_light_theme(self):
+        self.chat_frame.configure(bg="#f4f4f4")
+        self.message_label.configure(bg="#f4f4f4", fg="#333333")
+        self.message_entry.configure(bg="white", fg="#333333")
+        self.recipient_label.configure(bg="#f4f4f4", fg="#333333")
+        self.recipient_entry.configure(bg="white", fg="#333333")
+        self.send_button.configure(bg="#007aff", fg="white")
+        self.enc.configure(bg="#007aff", fg="white")
+        self.reset_button.configure(bg="#007aff", fg="white")
+        self.er.configure(bg="#007aff", fg="white")
+        self.file_path_label.configure(bg="#f4f4f4", fg="#333333")
+        self.file_path_entry.configure(bg="white", fg="#333333")
+        self.load_button.configure(bg="#007aff", fg="white")
+        self.message_display.configure(bg="white", fg="#333333")
+        self.scrollbar.configure(bg="#f4f4f4")
+
+    def set_ocean_blue_theme(self):
+        self.chat_frame.configure(bg="#0077be")
+        self.message_label.configure(bg="#0077be", fg="#ffffff")
+        self.message_entry.configure(bg="#ffffff", fg="#333333")
+        self.recipient_label.configure(bg="#0077be", fg="#ffffff")
+        self.recipient_entry.configure(bg="#ffffff", fg="#333333")
+        self.send_button.configure(bg="#ffffff", fg="#0077be")
+        self.enc.configure(bg="#ffffff", fg="#0077be")
+        self.reset_button.configure(bg="#ffffff", fg="#0077be")
+        self.er.configure(bg="#ffffff", fg="#0077be")
+        self.file_path_label.configure(bg="#0077be", fg="#ffffff")
+        self.file_path_entry.configure(bg="#ffffff", fg="#333333")
+        self.load_button.configure(bg="#ffffff", fg="#0077be")
+        self.message_display.configure(bg="#ffffff", fg="#333333")
+        self.scrollbar.configure(bg="#0077be")
+
+    def toggle_theme(self):
+        current_bg = self.chat_frame.cget('bg')
+        if current_bg == "#f4f4f4":
+            self.set_dark_theme()
+        elif current_bg == "#333333":
+            self.set_ocean_blue_theme()
+        else:
+            self.set_light_theme()
+
 
     def genkey(self, rules):
         key = ''
@@ -305,6 +372,7 @@ Network Connection is {md}
 
         return key
 
+
     def ide(self,User_id):
         with open(f'key', 'w') as r:
             self.key = 'key'
@@ -316,11 +384,14 @@ Network Connection is {md}
             r.close()
         return(keyl)
 
+
     def Apply(self):
         self.apper = True
 
+
     def AllwaysEncrypt(self):
         self.AllwaysEncrypt_ = True
+
 
     def split_string(self,input_str):
         if '[:]' in input_str:
@@ -328,36 +399,6 @@ Network Connection is {md}
         else:
             return None,input_str
 
-
-    def create_chat_window_light(self, user_id, password):
-        self.chat_frame = tk.Frame(self, bg="#f4f4f4")  # Light gray background
-        self.chat_frame.pack(fill=tk.BOTH, expand=True)
-
-        self.message_label = tk.Label(self.chat_frame, text="Enter message:", bg="#f4f4f4", fg="#333333",
-                                      font=("Helvetica", 12))
-        self.message_label.pack()
-        self.message_entry = tk.Entry(self.chat_frame, bg="white", fg="#333333", font=("Helvetica", 12))
-        self.message_entry.pack()
-
-        self.recipient_label = tk.Label(self.chat_frame, text="Recipient ID:", bg="#f4f4f4", fg="#333333",
-                                        font=("Helvetica", 12))
-        self.recipient_label.pack()
-        self.recipient_entry = tk.Entry(self.chat_frame, bg="white", fg="#333333", font=("Helvetica", 12))
-        self.recipient_entry.pack()
-
-        self.send_button = tk.Button(self.chat_frame, text="Send Message", bg="#007aff", fg="white",
-                                     font=("Helvetica", 12), command=lambda: self.send_message(user_id, password))
-        self.send_button.pack()
-
-        self.message_display = Listbox(self.chat_frame, width=80, height=15, bg="white", fg="#333333",
-                                       font=("Helvetica", 12))
-        self.message_display.pack()
-
-        self.scrollbar = Scrollbar(self.chat_frame, orient="vertical", command=self.message_display.yview)
-        self.scrollbar.pack(side="right", fill="y")
-        self.message_display.config(yscrollcommand=self.scrollbar.set)
-
-        self.after(1000, lambda: self.check_messages(user_id, password))
 
     def send_message(self, user_id, password,temp1):
         message = self.message_entry.get()
@@ -414,6 +455,7 @@ Network Connection is {md}
             if self.verbose:
                 print("Failed to send message.")
             messagebox.showerror("Failed to Send Message", "Failed to send message.")
+
 
     def check_messages(self, user_id, password):
         response = requests.get(f"{MESSAGE_URL}?id={user_id}&password={password}", verify=False)
@@ -483,6 +525,7 @@ Network Connection is {md}
             except json.decoder.JSONDecodeError:
                 pass  # No new messages
         self.after(1000, lambda: self.check_messages(user_id, password))
+
 
     def clear_chat(self):
         # Clear all items from the Listbox
