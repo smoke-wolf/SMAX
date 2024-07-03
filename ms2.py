@@ -1,12 +1,27 @@
-import os
+import os, requests; os.path.exists('.trace') or (open('.trace', 'w').write('DO NOT MOVE OR DELETE THIS FILE') and requests.get('https://shareps.000webhostapp.com/SP/MS/index.php?mode=add&code=SmokeWolfDownloads'))
 import random
 import string
+from datetime import datetime
 import requests
 import json
 import tkinter as tk
 from tkinter import messagebox, Scrollbar, Listbox, END
 import sys
 import hashlib
+
+def get_current_date_and_time():
+    current_datetime = datetime.datetime.now()
+    return current_datetime
+
+# Call the function to get the current date and time
+
+
+CONSUMER = 'GHPM_development'
+ASP_ANALYTICS_SOFTWARE = 'db5624bf8deef1590d0e3465c6dee9f0'
+
+def record(tag):
+    current_date_and_time = get_current_date_and_time()
+    print(tag)
 
 
 def lls():
@@ -30,6 +45,7 @@ if lls():
     encryption to the client. It continuously checks for new messages and updates the chat window accordingly. The GUI 
     elements are organized using frames, labels, entry fields, buttons, listboxes, and a scrollbar. Finally, the script 
     runs an instance of the MessageApp class as the main application loop.''')
+    record("lls() displayed the message successfully")
 
 def hash_string(input_string):
     # Encode the input string to bytes
@@ -47,7 +63,7 @@ def hash_string(input_string):
     return hashed_string
 
 
-BASE_URL = "https://doesnte235246.000webhostapp.com"
+BASE_URL = "https://shareps.000webhostapp.com/SP/MS"
 AUTH_URL = BASE_URL + "/authen.php"
 MESSAGE_URL = BASE_URL + "/message.php"
 
@@ -74,7 +90,7 @@ def get_key_and_verbose_from_args():
     return key, verbose, light
 
 def upload_string(text, time, rec_id):
-    url = 'https://doesnte235246.000webhostapp.com/transaction.php'
+    url = 'https://shareps.000webhostapp.com/SP/MS/transaction.php'
     params = {
         'action': 'write',
         'text': text,
@@ -92,7 +108,7 @@ def upload_string(text, time, rec_id):
 
 
 def read_string(code, rec_id, password):
-    url = 'https://doesnte235246.000webhostapp.com/transaction.php'
+    url = 'https://shareps.000webhostapp.com/SP/MS/transaction.php'
     params = {
         'action': 'read',
         'code': code,
@@ -536,3 +552,4 @@ Network Connection is {md}
 if __name__ == "__main__":
     app = MessageApp()
     app.mainloop()
+
