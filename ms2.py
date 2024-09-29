@@ -1,7 +1,8 @@
-import os, requests; os.path.exists('.trace') or (open('.trace', 'w').write('DO NOT MOVE OR DELETE THIS FILE') and requests.get('https://shareps.000webhostapp.com/SP/MS/index.php?mode=add&code=SmokeWolfDownloads'))
+import os
 import random
 import string
 from datetime import datetime
+
 import requests
 import json
 import tkinter as tk
@@ -9,27 +10,24 @@ from tkinter import messagebox, Scrollbar, Listbox, END
 import sys
 import hashlib
 
+import urllib3
+
+# Suppress only the InsecureRequestWarning from urllib3 used by requests
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Call the function to get the current date and time
 def get_current_date_and_time():
     current_datetime = datetime.datetime.now()
     return current_datetime
 
-# Call the function to get the current date and time
-
-
-CONSUMER = 'GHPM_development'
-ASP_ANALYTICS_SOFTWARE = 'db5624bf8deef1590d0e3465c6dee9f0'
 
 def record(tag):
-    current_date_and_time = get_current_date_and_time()
     print(tag)
 
 
 def lls():
     args = sys.argv[1:]  # Exclude the script name itself
     tell = None
-
-
-
     if '-t' in args:
         tell = True
     return tell
@@ -63,7 +61,7 @@ def hash_string(input_string):
     return hashed_string
 
 
-BASE_URL = "https://shareps.000webhostapp.com/SP/MS"
+BASE_URL = "https://sharepanel.host/dev/MS"
 AUTH_URL = BASE_URL + "/authen.php"
 MESSAGE_URL = BASE_URL + "/message.php"
 
@@ -90,7 +88,7 @@ def get_key_and_verbose_from_args():
     return key, verbose, light
 
 def upload_string(text, time, rec_id):
-    url = 'https://shareps.000webhostapp.com/SP/MS/transaction.php'
+    url = 'https://sharepanel.host/dev/MS/transaction.php'
     params = {
         'action': 'write',
         'text': text,
@@ -108,7 +106,7 @@ def upload_string(text, time, rec_id):
 
 
 def read_string(code, rec_id, password):
-    url = 'https://shareps.000webhostapp.com/SP/MS/transaction.php'
+    url = 'https://sharepanel.host/dev/MS/transaction.php'
     params = {
         'action': 'read',
         'code': code,
@@ -163,7 +161,7 @@ class MessageApp(tk.Tk):
             return encrypted
 
 
-    def decrypt_with_file(self,file_path, encrypted_string, key):
+    def decrypt_with_file(self, file_path, encrypted_string, key):
         if self.verbose:
             print("Starting decryption process...")
 
@@ -178,12 +176,19 @@ class MessageApp(tk.Tk):
             with open(file_path, 'r') as file:
                 key = file.read()
 
+            # Ensure key is not empty to avoid ZeroDivisionError
+            if len(key) == 0:
+                if self.verbose:
+                    print("Decryption key is empty. Skipping decryption.")
+                return encrypted_string
+
             decrypted = ''.join(chr(ord(char) ^ ord(key[i % len(key)])) for i, char in enumerate(encrypted_string))
 
             if self.verbose:
                 print("Decryption successful.")
 
             return decrypted
+
 
 
     def create_auth_widgets(self):
@@ -203,18 +208,29 @@ class MessageApp(tk.Tk):
         self.auth_button = tk.Button(self.auth_frame, text="Authenticate", command=self.authenticate_user)
         self.auth_button.pack()
 
-        md = requests.get('https://google.com', verify=False)
+        md = requests.get('https://sharepanel.host/dev/MS/Status.php', verify=False)
         if md.status_code == 200:
-            md = True
+            md = md.text
+        elif md.status_code != 200:
+            md = "Connection Is Broken"
 
 
-        self.aut = tk.Message(self.auth_frame, text=f'''
-Network Connection is {md}
+        self.aut = tk.Message(self.auth_frame, text=f'''{md}
 
 
 {os.getcwdb()}
 ''')
         self.aut.pack()
+
+        self.autrh_button = tk.Button(self.auth_frame, text="Help?", command=self.help)
+        self.autrh_button.pack()
+
+    def help(self):
+        import webbrowser
+
+        # Open a URL in the default web browser
+        url = "https://sharepanel.host/dev/MS/help/?"
+        webbrowser.open(url)
 
 
     def authenticate_user(self):
@@ -552,4 +568,3 @@ Network Connection is {md}
 if __name__ == "__main__":
     app = MessageApp()
     app.mainloop()
-
